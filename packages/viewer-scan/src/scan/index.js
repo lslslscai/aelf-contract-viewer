@@ -97,19 +97,32 @@ class Scanner {
   async loop() {
     console.log('start querying in loop');
     this.scheduler.setCallback(async () => {
+      console.log('in callback!');
       let currentMaxId = await this.getMaxId();
       // const lastIncId = await Blocks.getLastIncId();
       const lastIncId = await ScanCursor.getLastId(config.scannerName);
       if (currentMaxId - lastIncId <= this.options.buffer) {
+        console.log("condition1");
         return;
       }
       currentMaxId = lastIncId + this.options.buffer;
 
-      let results = await Transactions.getTransactionsById(lastIncId, currentMaxId, this.addressTo);
+      let results;
+      if(this.firstTime == false){
+        console.log("FirstTime!!!");
+        results = await Transactions.getTransactionsById(0, 100, this.addressTo);
+        this.firstTime = true;
+        }
+      else{
+        results = await Transactions.getTransactionsById(lastIncId, currentMaxId, this.addressTo);
+      }
+
       results = results || [];
+      console.log("results!!"+results)
       results = results.filter(removeFailedOrOtherMethod);
+      console.log("filtered results!!"+results)
       if (!results || (results && results.length === 0)) {
-        // await Blocks.updateLastIncId(currentMaxId);
+        console.log("condition2");
         await ScanCursor.updateLastIncId(currentMaxId, config.scannerName);
         return;
       }
@@ -147,6 +160,7 @@ class Scanner {
     /* eslint-disable arrow-body-style */
     let transactionList = await Promise.all(transactions.filter(isContractRelated).map(contractTransactionFormatted));
     transactionList = lodash.sortBy(transactionList, ['blockHeight', t => parseInt(t.serialNumber, 10)]);
+    console.log("#############\n"+transactionList);
     // eslint-disable-next-line no-restricted-syntax
     for (const item of transactionList) {
       const {

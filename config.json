@@ -1,6 +1,6 @@
 {
   "wallet": {
-    "privateKey": "f6e512a3c259e5f9af981d7f99d245aa5bc52fe448495e0b0dd56e8406be6f71"
+    "privateKey": "feb766a83f14cbfa6885bb0fc537f290985460949c412a463ce3f92677042977"
   },
   "contracts": {
     "parliament": "AElf.ContractNames.Parliament",
